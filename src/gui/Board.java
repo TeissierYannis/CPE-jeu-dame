@@ -60,7 +60,6 @@ class Board extends GridPane {
 				piece = GuiFactory.createPiece(col, ligne);
 
 				if (piece != null) {
-
 					// ajout d'un écouteur de souris
 					// si la piéce est sélectionnée, elle sera supprimé de son emplacement actuel
 					// et repositionnée sur une autre case

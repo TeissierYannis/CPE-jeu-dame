@@ -1,25 +1,16 @@
 package tests;
 
-import junit.framework.TestCase;
-import model.Coord;
 import model.ModelImplementor;
 import model.PawnModel;
 import nutsAndBolts.PieceSquareColor;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import static nutsAndBolts.PieceSquareColor.WHITE;
 
-public class ModelImplementorTest extends TestCase {
+public class ModelImplementorTest {
 
     public ModelImplementor mi;
 
     public ModelImplementorTest() {}
-
-    @BeforeClass
-    public void setUp() {
-        this.mi = new ModelImplementor();
-    }
 
     /*@Test
     public void testModelImplementor() {

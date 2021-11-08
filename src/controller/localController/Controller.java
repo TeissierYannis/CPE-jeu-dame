@@ -160,6 +160,7 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
                     this.transformCoordToIndex(outputModelData.promotedPieceCoord),
                     outputModelData.promotedPieceColor
             );
+                System.out.println(inputViewData);
 
             this.view.actionOnGui(inputViewData);
         }

@@ -1,13 +1,10 @@
 package tests;
 
-import junit.framework.TestCase;
 import model.Coord;
 import model.PawnModel;
 import nutsAndBolts.PieceSquareColor;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-public class PawnTest extends TestCase {
+public class PawnTest {
 
     public PawnModel pieceModel1;
     public PawnModel pieceModel2;
@@ -15,6 +12,7 @@ public class PawnTest extends TestCase {
 
     public PawnTest() {}
 
+    /*
     @BeforeClass
     public void setUp() {
         this.pieceModel1 = new PawnModel(new Coord('a', 7), PieceSquareColor.BLACK);
@@ -41,5 +39,5 @@ public class PawnTest extends TestCase {
         assertFalse(this.pieceModel3.isMoveOk(new Coord('e', 7), false));
 
         assertTrue(this.pieceModel2.hasThisCoord(new Coord('c', 5)));
-    }
+    }*/
 }

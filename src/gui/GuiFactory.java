@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import model.QueenModel;
 import nutsAndBolts.PieceSquareColor;
 
 
@@ -96,9 +97,8 @@ public class GuiFactory {
 	 * la promotion consiste é changer l'image de la PieceGui
 	 */
 	public static void PromotePiece(ImageView piece, PieceSquareColor promotedPieceColor) {
-
 		// ToDo Atelier 3
-
+		piece.setImage(createImage(promotedPieceColor, false));
 	}
 
 }

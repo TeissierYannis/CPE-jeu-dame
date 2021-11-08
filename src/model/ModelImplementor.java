@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import gui.GuiFactory;
 import nutsAndBolts.PieceSquareColor;
 
 /**
@@ -54,13 +55,21 @@ public class ModelImplementor {
         return isMovePieceOk;
     }
 
+    public void promote(PawnModel pawnModel) {
+        Coord coord = new Coord(pawnModel.getColonne(), pawnModel.getLigne());
+        PieceSquareColor color = pawnModel.getPieceColor();
+
+        this.removePiece(coord);
+
+        QueenModel queenModel = new QueenModel(coord, color);
+        this.pieces.add(queenModel);
+    }
 
     public boolean movePiece(Coord initCoord, Coord targetCoord) {
 
         boolean isMovePieceDone = false;
         PieceModel initPiece = this.findPiece(initCoord);
         if (initPiece != null) {
-
             // d�placement pi�ce
             initPiece.move(targetCoord);
             isMovePieceDone = true;

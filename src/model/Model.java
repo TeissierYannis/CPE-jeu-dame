@@ -78,12 +78,13 @@ public class Model implements BoardGame<Coord> {
                     this.remove(toCapturePieceCoord);
 
                     // promotion éventuelle de la piéce aprés déplacement
-                    if (targetSquareCoord.getLigne() == 10 || targetSquareCoord.getLigne() == 1) {    // TODO : Test é changer atelier 3
-                        // TODO atelier 3
-                        PieceModel piece = this.implementor.findPiece(targetSquareCoord);
-
-                        if (piece instanceof PawnModel) {
-                            System.out.println("Promote pls");
+                    PieceModel piece = this.implementor.findPiece(targetSquareCoord);
+                    if (piece instanceof PawnModel pm) {
+                        if (pm.isPromotable()) {
+                            // TODO atelier 3
+                            this.implementor.promote(pm);
+                            toPromotePieceColor = pm.getPieceColor();
+                            toPromotePieceCoord = new Coord(pm.getColonne(), pm.getLigne());
                         }
                     }
 
@@ -106,7 +107,6 @@ public class Model implements BoardGame<Coord> {
                 toPromotePieceColor);
 
         return outputModelData;
-
     }
 
     /**
@@ -132,7 +132,6 @@ public class Model implements BoardGame<Coord> {
     private List<Coord> getPieceOnItinerary(Coord fromCoord, Coord toCoord) {
 
         List<Coord> onItineraryPieces = new LinkedList<Coord>();
-
 
         List<Coord> coords = this.implementor.getCoordsOnItinerary(fromCoord, toCoord);
         PieceModel piece = null;

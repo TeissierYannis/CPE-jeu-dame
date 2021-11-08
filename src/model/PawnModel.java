@@ -49,13 +49,11 @@ public class PawnModel extends AbstractPieceModel implements Promotable {
 
     @Override
     public boolean isPromotable() {
-        return false;
+        return this.pieceColor == BLACK && this.coord.getLigne() == 1 || this.pieceColor == WHITE && this.coord.getLigne() == 10;
     }
     // TODO FAIRE CA POUR TP 3
     @Override
     public void promote() {
-        if (this.isPromotable()) {
-            new
-        }
+        System.out.println("USELESS");
     }
 }
