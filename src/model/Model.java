@@ -57,11 +57,15 @@ public class Model implements BoardGame<Coord> {
         Coord toPromotePieceCoord = null;
         PieceSquareColor toPromotePieceColor = null;
 
+        System.out.println("=================================");
         // Si la piéce est déplaéable (couleur du joueur courant et case arrivée disponible)
-        if (this.isPieceMoveable(toMovePieceCoord, targetSquareCoord)) {
+        if (this.isPieceMovable(toMovePieceCoord, targetSquareCoord)) {
+            System.out.println("1. Piece Movable");
 
             // S'il n'existe pas plusieurs piéces sur le chemin
             if (this.isThereMaxOnePieceOnItinerary(toMovePieceCoord, targetSquareCoord)) {
+                System.out.println("2. Max one piece on itinerary");
+
 
                 //Recherche coord de l'éventuelle piéce é prendre
                 toCapturePieceCoord = this.getToCapturePieceCoord(toMovePieceCoord, targetSquareCoord);
@@ -69,6 +73,8 @@ public class Model implements BoardGame<Coord> {
                 // si le déplacement est légal (en diagonale selon algo pion ou dame)
                 boolean isPieceToCapture = toCapturePieceCoord != null;
                 if (this.isMovePiecePossible(toMovePieceCoord, targetSquareCoord, isPieceToCapture)) {
+
+                    System.out.println("3. Move piece possible");
 
                     // déplacement effectif de la piéce
                     this.movePiece(toMovePieceCoord, targetSquareCoord);
@@ -92,6 +98,7 @@ public class Model implements BoardGame<Coord> {
                     // ou si une rafle n'est pas possible alors changement de joueur
                     if (true) {    // TODO : Test é changer atelier 4
                         this.switchGamer();
+                        System.out.println("4. Changement de joueur");
                     }
 
                 }
@@ -116,7 +123,7 @@ public class Model implements BoardGame<Coord> {
      * et que les coordonnées d'arrivées soient dans les limites du tableau
      * et qu'il n'y ait pas de piéce sur la case d'arrivée
      */
-    boolean isPieceMoveable(Coord toMovePieceCoord, Coord targetSquareCoord) { // TODO : remettre en "private" aprés test unitaires
+    boolean isPieceMovable(Coord toMovePieceCoord, Coord targetSquareCoord) { // TODO : remettre en "private" aprés test unitaires
         boolean bool = false;
 
         // TODO : é compléter atelier 4 pour gérer les rafles

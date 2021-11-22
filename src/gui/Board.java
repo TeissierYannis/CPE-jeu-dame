@@ -1,11 +1,13 @@
 package gui;
 
+import com.sun.webkit.Timer;
 import controller.InputViewData;
 import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import model.ModelImplementor;
 
 /**
  * @author francoiseperrin
@@ -92,7 +94,7 @@ class Board extends GridPane {
 	public void actionOnGui(InputViewData<Integer> dataToRefreshView) {
 		
 		if (dataToRefreshView != null) {
-			
+
 			////////////////////////////////////////////////////
 			// la PieceGui de la vue est effectivement déplacée
 			////////////////////////////////////////////////////
@@ -130,6 +132,7 @@ class Board extends GridPane {
 				BorderPane capturedPieceSquare = (BorderPane) this.getChildren().get(dataToRefreshView.capturedPieceIndex);
 				capturedPieceSquare.getChildren().clear();
 			}
+
 		}
 
 	}

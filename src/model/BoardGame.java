@@ -2,6 +2,8 @@ package model;
 
 import controller.OutputModelData;
 
+import java.io.IOException;
+
 /**
  * @author francoise.perrin
  *
@@ -20,6 +22,6 @@ public interface BoardGame<T>  {
 	 * 		- éventuellement les coordonnées de la piéce capturée, null sinon 
 	 * 		- éventuellement les coordonnées et la couleur du pion promus en dame, null sinon
 	 */
-	public OutputModelData<T> moveCapturePromote(T toMovePieceIndex, T targetSquareIndex);
+	public OutputModelData<T> moveCapturePromote(T toMovePieceIndex, T targetSquareIndex) throws IOException;
 	
 }

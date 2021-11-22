@@ -4,6 +4,7 @@ import nutsAndBolts.PieceSquareColor;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class AbstractPieceModel implements PieceModel {
 
@@ -61,5 +62,17 @@ public abstract class AbstractPieceModel implements PieceModel {
     @Override
     public String toString() {
         return " [" + pieceColor.toString().charAt(0) + coord + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractPieceModel that)) return false;
+        return coord.equals(that.coord);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coord);
     }
 }

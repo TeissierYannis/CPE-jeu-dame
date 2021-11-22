@@ -11,11 +11,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import model.BoardGame;
 import model.Coord;
-import model.Model;
 import model.ModelConfig;
 
-import java.util.Stack;
-
+import java.io.*;
 
 /**
  * @author francoiseperrin
@@ -33,6 +31,8 @@ import java.util.Stack;
  */
 public class Controller implements Mediator, BoardGame<Integer>, EventHandler<MouseEvent> {
 
+    private DataOutputStream out;
+    private DataInputStream in;
 
     private BoardGame<Coord> model;
     private View view;
@@ -45,6 +45,11 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
         this.model = null;
         this.view = null;
         this.setToMovePieceIndex(-1);
+    }
+
+    public Controller(DataOutputStream out, DataInputStream in) {
+        this.out = out;
+        this.in = in;
     }
 
     private void setToMovePieceIndex(int toMovePieceIndex) {
@@ -78,10 +83,11 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
     @Override
     public void handle(MouseEvent mouseEvent) {
         try {
-            if (mouseEvent.getSource() instanceof CheckersSquareGui)
+            if (mouseEvent.getSource() instanceof CheckersSquareGui) {
                 checkersSquareGuiHandle(mouseEvent);
-            else
+            } else {
                 checkersPieceGuiHandle(mouseEvent);
+            }
         } catch (Exception e) {
             // Try - Catch pour empécher pgm de planter tant que les interfaces
             // CheckersSquareGui et CheckersPieceGui n'existent pas
@@ -93,10 +99,8 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
      * @param mouseEvent Ecoute les événements sur les PieceGui
      */
     private void checkersPieceGuiHandle(MouseEvent mouseEvent) {
-
         // Recherche PieceGui sélectionnée
         ImageView selectedPiece = (ImageView) mouseEvent.getSource();
-
         // Recherche et fixe coordonnée de la piéce sélectionnée
         CheckersSquareGui parentSquare = (CheckersSquareGui) selectedPiece.getParent();
         this.setToMovePieceIndex(parentSquare.getSquareCoord());
@@ -107,17 +111,18 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
     /**
      * @param mouseEvent Ecoute les événements sur les SquareGui
      */
-    private void checkersSquareGuiHandle(MouseEvent mouseEvent) {
+    private void checkersSquareGuiHandle(MouseEvent mouseEvent) throws IOException {
         // System.out.println("ici");
         // Recherche SquareGUI sélectionné
         CheckersSquareGui square = (CheckersSquareGui) mouseEvent.getSource();
         int targetSquareIndex = square.getSquareCoord();
 
+        this.out.writeUTF("move " + this.getToMovePieceIndex() + " " + targetSquareIndex);
+        this.out.flush();
         // Le controller va invoquer la méthode moveCapturePromotion() du model
         // et si le model confirme que la piéce a bien été déplacée écet endroit,
         // il invoquera une méthode de la view pour la rafraichir
-        this.moveCapturePromote(this.getToMovePieceIndex(), targetSquareIndex);
-
+        // this.moveCapturePromote(this.getToMovePieceIndex(), targetSquareIndex);
         // il n'y a plus de piéce é déplacer
         this.setToMovePieceIndex(-1);
 
@@ -140,7 +145,7 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
      * pour rafraichir affichage en fonction des données retournées par le model
      */
     @Override
-    public OutputModelData<Integer> moveCapturePromote(Integer toMovePieceIndex, Integer targetSquareIndex) {
+    public OutputModelData<Integer> moveCapturePromote(Integer toMovePieceIndex, Integer targetSquareIndex) throws IOException {
 
         OutputModelData<Integer> outputControllerData = null;
         OutputModelData<Coord> outputModelData = null;
@@ -152,17 +157,23 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
 
         outputModelData = this.model.moveCapturePromote(toMovePieceCoord, targetSquareCoord);
 
-            if (outputModelData.isMoveDone) {
-                inputViewData = new InputViewData<Integer>(
-                        this.transformCoordToIndex(toMovePieceCoord),
-                        this.transformCoordToIndex(targetSquareCoord),
+        System.out.println("[CONTROLLER] output model data " + outputModelData);
+
+        if (outputModelData.isMoveDone) {
+            inputViewData = new InputViewData<Integer>(
+                    this.transformCoordToIndex(toMovePieceCoord),
+                    this.transformCoordToIndex(targetSquareCoord),
                     this.transformCoordToIndex(outputModelData.capturedPieceCoord),
                     this.transformCoordToIndex(outputModelData.promotedPieceCoord),
                     outputModelData.promotedPieceColor
             );
-                System.out.println(inputViewData);
+            System.out.println("Input view data : " + inputViewData);
 
+            // Invoque la méthode actionOnGui() de la view
             this.view.actionOnGui(inputViewData);
+
+            System.out.println("Refreshing view");
+
         }
 
         System.out.println("-- : " + toMovePieceIndex + " : " + targetSquareIndex);
@@ -170,7 +181,6 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
         // Inutile de reconstituer un objetOutputModelData<Integer>, aucun client ne le récupére en mode local
         return outputControllerData;
     }
-
 
     /**
      * @param squareIndex
@@ -193,8 +203,6 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
         }
         return squareIndex;
     }
-
-
 }
 
 

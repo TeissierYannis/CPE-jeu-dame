@@ -2,7 +2,9 @@ package launcher;
 
 
 import controller.Mediator;
+import controller.localController.ClientController;
 import controller.localController.Controller;
+import controller.localController.ServerController;
 import gui.GuiConfig;
 import gui.View;
 import javafx.application.Application;
@@ -14,6 +16,8 @@ import model.BoardGame;
 import model.Coord;
 import model.Model;
 
+import java.io.IOException;
+
 
 public class Launcher extends Application {
 
@@ -21,8 +25,7 @@ public class Launcher extends Application {
 	private EventHandler<MouseEvent> controller;
 	private View view;
 
-	public static void main (String[] args) {
-
+	public static void main (String[] args) throws InterruptedException, IOException {
 		Launcher.launch();
 	}
 
@@ -63,14 +66,10 @@ public class Launcher extends Application {
 
 	@Override
 	public void start (Stage primaryStage) {
-
 		primaryStage.setScene(new Scene(this.view, GuiConfig.HEIGHT, GuiConfig.HEIGHT));
-		primaryStage.setTitle("Jeu de dames - Version Atelier 1");
+		primaryStage.setTitle("Jeu de dames");
 		primaryStage.show();
-
 	}
-
-
 }
 
 

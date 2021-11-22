@@ -103,7 +103,6 @@ public class ModelImplementor {
         return findPiece;
     }
 
-
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      *
@@ -112,7 +111,6 @@ public class ModelImplementor {
      *
      */
     public String toString() {
-
 
         String st = "";
         String[][] damier = new String[ModelConfig.LENGTH][ModelConfig.LENGTH];
