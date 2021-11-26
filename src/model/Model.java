@@ -27,13 +27,15 @@ import nutsAndBolts.PieceSquareColor;
 public class Model implements BoardGame<Coord> {
 
     private PieceSquareColor currentGamerColor;    // couleur du joueur courant
-
+    private static PieceSquareColor currentPlayer;
     private ModelImplementor implementor;        // Cet objet sait communiquer avec les PieceModel
 
     public Model() {
         super();
         this.implementor = new ModelImplementor();
         this.currentGamerColor = ModelConfig.BEGIN_COLOR;
+
+        currentPlayer = this.currentGamerColor;
 
         System.out.println(this);
     }
@@ -42,7 +44,6 @@ public class Model implements BoardGame<Coord> {
     public String toString() {
         return implementor.toString();
     }
-
 
     /**
      * Actions potentielles sur le model : move, capture, promotion pion, rafles
@@ -99,6 +100,7 @@ public class Model implements BoardGame<Coord> {
                     if (true) {    // TODO : Test é changer atelier 4
                         this.switchGamer();
                         System.out.println("4. Changement de joueur");
+                        currentPlayer = this.currentGamerColor;
                     }
 
                 }
@@ -216,5 +218,7 @@ public class Model implements BoardGame<Coord> {
 
     }
 
-
+    public static PieceSquareColor getCurrentPlayer() {
+        return currentPlayer;
+    }
 }

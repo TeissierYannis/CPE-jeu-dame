@@ -11,7 +11,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import model.BoardGame;
 import model.Coord;
+import model.Model;
 import model.ModelConfig;
+import nutsAndBolts.PieceSquareColor;
 
 import java.io.*;
 
@@ -31,8 +33,8 @@ import java.io.*;
  */
 public class Controller implements Mediator, BoardGame<Integer>, EventHandler<MouseEvent> {
 
+    public static PieceSquareColor playerColor;
     private DataOutputStream out;
-    private DataInputStream in;
 
     private BoardGame<Coord> model;
     private View view;
@@ -47,9 +49,9 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
         this.setToMovePieceIndex(-1);
     }
 
-    public Controller(DataOutputStream out, DataInputStream in) {
+    public Controller(DataOutputStream out, PieceSquareColor playerColor) {
         this.out = out;
-        this.in = in;
+        this.playerColor = playerColor;
     }
 
     private void setToMovePieceIndex(int toMovePieceIndex) {
@@ -82,16 +84,18 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
 
     @Override
     public void handle(MouseEvent mouseEvent) {
-        try {
-            if (mouseEvent.getSource() instanceof CheckersSquareGui) {
-                checkersSquareGuiHandle(mouseEvent);
-            } else {
-                checkersPieceGuiHandle(mouseEvent);
+        if (Model.getCurrentPlayer() == playerColor) {
+            try {
+                if (mouseEvent.getSource() instanceof CheckersSquareGui) {
+                    checkersSquareGuiHandle(mouseEvent);
+                } else {
+                    checkersPieceGuiHandle(mouseEvent);
+                }
+            } catch (Exception e) {
+                // Try - Catch pour empécher pgm de planter tant que les interfaces
+                // CheckersSquareGui et CheckersPieceGui n'existent pas
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            // Try - Catch pour empécher pgm de planter tant que les interfaces
-            // CheckersSquareGui et CheckersPieceGui n'existent pas
-            e.printStackTrace();
         }
     }
 
@@ -129,7 +133,6 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
         // On évite que le parent ne récupére l'event
         mouseEvent.consume();
     }
-
 
     //////////////////////////////////////////////////////////////////
     //

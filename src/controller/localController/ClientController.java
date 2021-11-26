@@ -4,6 +4,7 @@ import controller.Mediator;
 import gui.GuiConfig;
 import gui.View;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -12,38 +13,56 @@ import javafx.stage.Stage;
 import model.BoardGame;
 import model.Coord;
 import model.Model;
+import nutsAndBolts.PieceSquareColor;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.concurrent.RunnableFuture;
 
 public class ClientController extends Application {
 
-    private BoardGame<Coord> model;
-    private EventHandler<MouseEvent> controller;
-    private View view;
-
+    public static PieceSquareColor playerColor;
     private static Socket client;
     private static DataInputStream dataInputStream;
     private static DataOutputStream dataOutputStream;
-
     RunnableFuture<Void> future;
+    private BoardGame<Coord> model;
+    private EventHandler<MouseEvent> controller;
+    private View view;
 
     public static void main(String[] args) throws IOException {
 
         try {
             client = new Socket("127.0.0.1", 8889);
 
-            dataOutputStream = new DataOutputStream(client.getOutputStream());
-            dataInputStream = new DataInputStream(client.getInputStream());
+            if (client.isConnected()) {
+                dataOutputStream = new DataOutputStream(client.getOutputStream());
+                dataInputStream = new DataInputStream(client.getInputStream());
 
-            dataOutputStream.writeUTF("[CLIENT] Launching app...");
+                dataOutputStream.writeUTF("[CLIENT] Launching app...");
 
-            ClientController.launch();
+                while (true) {
+                    String line = dataInputStream.readUTF();
 
+                    if (line.contains("start")) {
+                        System.out.println("[CLIENT] Launching client");
+                        break;
+                    } else if (line.contains("color")) {
+                        playerColor = Objects.equals(line.split(" ")[1], "WHITE") ? PieceSquareColor.WHITE : PieceSquareColor.BLACK;
+                        System.out.println("[CLIENT] Color received : " + playerColor);
+                    }
+                }
+
+                ClientController.launch();
+
+            } else {
+                System.out.println("[CLIENT] Error connection");
+            }
         } catch (UnknownHostException e) {
             System.out.println("[CLIENT] Error " + e.getMessage());
         }
@@ -64,7 +83,7 @@ public class ClientController extends Application {
         // il renvoie les r�ponses du model � la vue
         ///////////////////////////////////////////////////////////////////////////////////////
 
-        this.controller = new Controller(dataOutputStream, dataInputStream);
+        this.controller = new Controller(dataOutputStream, playerColor);
 
         ///////////////////////////////////////////////////////////////////////////////////////
         // Fen�tre dans laquelle se dessine le damier est �cout�e par controller
@@ -72,49 +91,32 @@ public class ClientController extends Application {
 
         this.view = new View(controller);
 
+        // Listening broadcast from server and propagating it to the view to update the board
         future = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                while (true) {
-                /*
-                String line = dataInputStream.readUTF();
-                System.out.println("[CLIENT] " + line);
+                try {
+                    while (true) {
+                        String line = dataInputStream.readUTF();
 
-                        /*
-                         0 = cmd name
-                         1 = toMovePieceIndex
-                         2 = targetSquareIndex
-                         3 = capturedPieceIndex
-                         4 = promotedPieceIndex
-                         5 = promotedPieceColor
-                         */
-                /*
-                String[] data = line.split(" ");
-                InputViewData<Integer> inputViewData = new InputViewData<Integer>(
-                        Integer.parseInt(data[1]),
-                        Integer.parseInt(data[2]),
-                        Integer.parseInt(data[3]),
-                        Integer.parseInt(data[4]),
-                        Objects.equals(data[5], "WHITE") ? PieceSquareColor.WHITE
-                        : (Objects.equals(data[5], "BLACK") ? PieceSquareColor.BLACK
-                        : null)
-                );
+                        if (line.contains("move")) {
+                            System.out.println("[CLIENT MOVE] " + line);
 
-                System.out.println("[CLIENT] " + inputViewData);
-
-                view.actionOnGui(inputViewData);*/
-                    String line = dataInputStream.readUTF();
-
-                    if (line.contains("move")) {
-                        System.out.println("[CLIENT MOVE] " + line);
-
-                        String[] data = line.split(" ");
-                        ((Controller) controller).moveCapturePromote(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
-
-                    } else {
-                        System.out.println("[CLIENT INFO] " + line);
+                            String[] data = line.split(" ");
+                            Platform.runLater(() -> {
+                                try {
+                                    ((Controller) controller).moveCapturePromote(Integer.parseInt(data[1]), Integer.parseInt(data[2]));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } else {
+                            System.out.println("[CLIENT INFO] " + line);
+                        }
                     }
+                } catch (SocketException e) {
                 }
+                return null;
             }
         };
 
@@ -132,11 +134,16 @@ public class ClientController extends Application {
     public void start(Stage primaryStage) {
 
         // Listening communication from the server
-        Thread thread = new Thread(future);
-        thread.start();
+        try {
+            Thread thread = new Thread(future);
+            thread.start();
 
+        } catch (Exception e) {
+            System.out.println("[CLIENT] Error thread  " + e.getMessage());
+            e.printStackTrace();
+        }
         primaryStage.setScene(new Scene(this.view, GuiConfig.HEIGHT, GuiConfig.HEIGHT));
-        primaryStage.setTitle("Jeu de dames");
+        primaryStage.setTitle("Jeu de dames - " + playerColor);
         primaryStage.show();
     }
 

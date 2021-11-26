@@ -3,15 +3,16 @@ package controller.localController;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class RequestHandler extends Thread {
 
     private final ServerController serverController;
     private Socket socket;
 
-    private boolean isRunning = false;
+    private DataOutputStream out;
+    private DataInputStream in;
 
     public RequestHandler(Socket socket, ServerController serverController) {
         this.socket = socket;
@@ -21,29 +22,42 @@ public class RequestHandler extends Thread {
     @Override
     public void run() {
 
-        this.isRunning = true;
-
-        serverController.addClient(socket);
-
-        while (serverController.getClientCount() != serverController.getMaxClients()) {
-            try {
-                Thread.sleep(1000);
-                System.out.println(serverController.getClientCount());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
         try {
-            PrintWriter out = new PrintWriter(this.socket.getOutputStream());
-            DataInputStream in = new DataInputStream(this.socket.getInputStream());
+            boolean isRunning = true;
 
-            while (this.isRunning) {
+            serverController.addClient(socket);
+
+            out = new DataOutputStream(this.socket.getOutputStream());
+            in = new DataInputStream(this.socket.getInputStream());
+
+            if (serverController.getClientCount() == 1) {
+                out.writeUTF("color WHITE");
+            } else {
+                out.writeUTF("color BLACK");
+            }
+
+            while (serverController.getClientCount() != serverController.getMaxClients()) {
+                try {
+                    out.writeUTF("ping");
+                    System.out.println("CC");
+                    sleep(1000);
+                } catch(IOException e) {
+                    isRunning = false;
+                    serverController.removeClient(socket);
+                    out.close();
+                    in.close();
+                    this.socket.close();
+                    break;
+                }
+            }
+
+            if (isRunning) broadcast("start");
+
+            while (isRunning) {
                 String line = in.readUTF();
                 // Receive exit command from client
                 if (line.equals("exit")) {
                     System.out.println("[SERVER] Connexion closed by client [1/2]");
-                    this.isRunning = false;
                     break;
                 } else if (line.contains("moveto")) {
                     System.out.println("[MOVETO] : " + line);
@@ -52,11 +66,7 @@ public class RequestHandler extends Thread {
                 } else if (line.contains(("refresh"))) {
                     System.out.println("[REFRESH] : " + line);
                     System.out.println("[REFRESH] : " + serverController.getClients());
-                    for (Socket client : serverController.getClients()) {
-                        DataOutputStream broadcast = new DataOutputStream(client.getOutputStream());
-                        broadcast.writeUTF(line);
-                        broadcast.flush();
-                    }
+                    broadcast(line);
                 } else if (line.contains("move")) {
                     System.out.println("[MOVE] : " + line);
                     System.out.println("[MOVE] : " + serverController.getClients());
@@ -75,10 +85,27 @@ public class RequestHandler extends Thread {
             in.close();
             this.socket.close();
             serverController.removeClient(socket);
-
-        } catch (IOException e) {
+        } catch (InterruptedException e) {
             System.out.println("[SERVER] Error " + e.getMessage() + " line : " + e.getStackTrace()[0].getLineNumber());
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Send a message to all clients
+     * @param message
+     */
+    private void broadcast(String message) {
+        try {
+            for (Socket client : serverController.getClients()) {
+                DataOutputStream broadcast = new DataOutputStream(client.getOutputStream());
+                broadcast.writeUTF(message);
+                broadcast.flush();
+            }
+        }catch (IOException e){
+            System.out.println("[SERVER] Error " + e.getMessage() + " line : " + e.getStackTrace()[0].getLineNumber());
         }
     }
 }

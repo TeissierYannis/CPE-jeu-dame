@@ -50,9 +50,6 @@ public class View extends BorderPane {
 
 		// ajout du fond d'�cran �la vue
 		this.setCenter(checkersBoard);
-
-
-
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////

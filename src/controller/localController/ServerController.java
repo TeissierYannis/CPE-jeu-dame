@@ -8,8 +8,10 @@ import java.util.LinkedList;
 public class ServerController extends AbstractController {
 
     private static final int MAX_CLIENTS = 2;
+
     private LinkedList<Socket> clients;
     private static int clientCount;
+
     private ServerSocket serverSocket;
     private boolean isRunning = false;
 
@@ -19,7 +21,7 @@ public class ServerController extends AbstractController {
         clients = new LinkedList<Socket>();
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         ServerController server = new ServerController();
         server.startServer();
         server.stopServer();
@@ -40,24 +42,18 @@ public class ServerController extends AbstractController {
     public void run() {
         this.isRunning = true;
 
-        while (this.isRunning) {
+        System.out.println("[SERVER] Waiting for client... " + clientCount);
+        while (isRunning) {
             try {
-                System.out.println("[SERVER] Waiting for client... " + clientCount);
-
-                if (clientCount <= MAX_CLIENTS) {
-                    // Wait for a client to connect
-                    Socket socket = serverSocket.accept();
-                    clientCount++;
-
-                    RequestHandler requestHandler = new RequestHandler(socket, this);
-                    requestHandler.start();
+                if (clientCount == MAX_CLIENTS) {
+                    System.out.println("[SERVER] Maximum number of clients reached");
                 }
+                // Wait for a client to connect
+                Socket socket = serverSocket.accept();
+                clientCount++;
 
-                for(Socket client : clients) {
-                    if(!client.isConnected()) {
-                        removeClient(client);
-                    }
-                }
+                RequestHandler requestHandler = new RequestHandler(socket, this);
+                requestHandler.start();
 
             } catch (IOException e) {
                 System.out.println("[SERVER] Error " + e.getMessage() + " line : " + e.getStackTrace()[0].getLineNumber());
@@ -84,11 +80,13 @@ public class ServerController extends AbstractController {
 
     public void addClient(Socket client) {
         clients.add(client);
+        System.out.println("[SERVER] Client added to the player list");
     }
 
     public void removeClient(Socket client) {
         clientCount--;
         clients.remove(client);
+        System.out.println("[SERVER] Client removed");
     }
 }
 
