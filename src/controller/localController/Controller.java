@@ -84,7 +84,8 @@ public class Controller implements Mediator, BoardGame<Integer>, EventHandler<Mo
 
     @Override
     public void handle(MouseEvent mouseEvent) {
-        if (Model.getCurrentPlayer() == playerColor) {
+
+        if (Model.getCurrentGamerColor() == playerColor) {
             try {
                 if (mouseEvent.getSource() instanceof CheckersSquareGui) {
                     checkersSquareGuiHandle(mouseEvent);

@@ -30,6 +30,7 @@ public class RequestHandler extends Thread {
             out = new DataOutputStream(this.socket.getOutputStream());
             in = new DataInputStream(this.socket.getInputStream());
 
+            // TODO RETURN ID OF CLIENT AND SEND IT TO CLIENT TO ASSIGN IT IN CLIENT CONTROLLER
             if (serverController.getClientCount() == 1) {
                 out.writeUTF("color WHITE");
             } else {
@@ -39,8 +40,6 @@ public class RequestHandler extends Thread {
             while (serverController.getClientCount() != serverController.getMaxClients()) {
                 try {
                     out.writeUTF("ping");
-                    System.out.println("CC");
-                    sleep(1000);
                 } catch(IOException e) {
                     isRunning = false;
                     serverController.removeClient(socket);
@@ -59,22 +58,10 @@ public class RequestHandler extends Thread {
                 if (line.equals("exit")) {
                     System.out.println("[SERVER] Connexion closed by client [1/2]");
                     break;
-                } else if (line.contains("moveto")) {
-                    System.out.println("[MOVETO] : " + line);
-                    String[] split = line.split(" ");
-                    System.out.println("[SERVER] Move to " + split[1] + " to " + split[2]);
-                } else if (line.contains(("refresh"))) {
-                    System.out.println("[REFRESH] : " + line);
-                    System.out.println("[REFRESH] : " + serverController.getClients());
-                    broadcast(line);
                 } else if (line.contains("move")) {
                     System.out.println("[MOVE] : " + line);
                     System.out.println("[MOVE] : " + serverController.getClients());
-                    for (Socket client : serverController.getClients()) {
-                        DataOutputStream broadcast = new DataOutputStream(client.getOutputStream());
-                        broadcast.writeUTF(line);
-                        broadcast.flush();
-                    }
+                    broadcast(line);
                 }
                 System.out.println("[Listening] " + line);
             }
@@ -85,9 +72,6 @@ public class RequestHandler extends Thread {
             in.close();
             this.socket.close();
             serverController.removeClient(socket);
-        } catch (InterruptedException e) {
-            System.out.println("[SERVER] Error " + e.getMessage() + " line : " + e.getStackTrace()[0].getLineNumber());
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

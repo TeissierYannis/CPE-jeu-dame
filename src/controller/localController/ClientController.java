@@ -31,6 +31,7 @@ public class ClientController extends Application {
     private static DataInputStream dataInputStream;
     private static DataOutputStream dataOutputStream;
     RunnableFuture<Void> future;
+
     private BoardGame<Coord> model;
     private EventHandler<MouseEvent> controller;
     private View view;
@@ -83,6 +84,7 @@ public class ClientController extends Application {
         // il renvoie les r�ponses du model � la vue
         ///////////////////////////////////////////////////////////////////////////////////////
 
+        // TODO this plutot
         this.controller = new Controller(dataOutputStream, playerColor);
 
         ///////////////////////////////////////////////////////////////////////////////////////
@@ -114,8 +116,7 @@ public class ClientController extends Application {
                             System.out.println("[CLIENT INFO] " + line);
                         }
                     }
-                } catch (SocketException e) {
-                }
+                } catch (SocketException e) {}
                 return null;
             }
         };
